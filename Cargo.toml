@@ -13,6 +13,10 @@ features = ["json"]
 version = "1.0.152"
 features = ["derive"]
 
+[dependencies.chrono]
+version = "0.4.23"
+features = ["serde"]
+
 [dependencies.diesel]
 version = "2.0.0"
 features = ["postgres"]
