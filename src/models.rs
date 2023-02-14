@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 
 use crate::schema::users;
 #[derive(Serialize, Queryable, QueryableByName)]
-#[diesel(table = users)]
+#[diesel(table_name = users)]
 pub struct User{
     pub id: i32,
     pub username: String,
@@ -12,7 +12,7 @@ pub struct User{
 
 use crate::schema::posts;
 #[derive(Serialize, Queryable, QueryableByName)]
-#[diesel(table = posts)]
+#[diesel(table_name = posts)]
 pub struct Post{
     pub id: i32,
     pub user_id: i32,
@@ -22,7 +22,7 @@ pub struct Post{
 
 use crate::schema::access_tokens;
 #[derive(Serialize, Queryable, QueryableByName)]
-#[diesel(table = access_tokens)]
+#[diesel(table_name = access_tokens)]
 pub struct AccessToken{
     pub hashed: String,
     pub user_id: i32,
