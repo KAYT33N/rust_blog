@@ -42,6 +42,9 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+pub mod schema;
+pub mod models;
+
 #[launch]
 fn rocket() -> _ {
     dotenv().ok();
