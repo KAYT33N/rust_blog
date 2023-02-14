@@ -52,4 +52,5 @@ fn rocket() -> _ {
     env::set_var("RUST_BACKTRACE",env::var("RUST_BACKTRACE").unwrap());
     rocket::build()
         .mount("/",routes![healthcheck])
+        .mount("/users/",controllers::user_controller::routes())
 }
