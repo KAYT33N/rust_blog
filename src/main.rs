@@ -44,6 +44,7 @@ fn establish_connection() -> PgConnection {
 
 pub mod schema;
 pub mod models;
+pub mod controllers;
 
 #[launch]
 fn rocket() -> _ {
