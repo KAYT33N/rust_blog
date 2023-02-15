@@ -54,4 +54,5 @@ fn rocket() -> _ {
     rocket::build()
         .mount("/",routes![healthcheck])
         .mount("/users/",controllers::user_controller::routes())
+        .mount("/tokens/",controllers::token_controller::routes())
 }

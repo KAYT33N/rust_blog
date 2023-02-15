@@ -255,6 +255,7 @@ dependencies = [
  "chrono",
  "diesel",
  "dotenvy",
+ "rand",
  "regex",
  "rocket",
  "serde",
