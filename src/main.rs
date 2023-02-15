@@ -1,4 +1,5 @@
 #![allow(unused_imports)]
+#![allow(non_camel_case_types)]
 #[macro_use] extern crate rocket;
 
 use rocket::{
