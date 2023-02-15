@@ -43,6 +43,7 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+pub mod guards;
 pub mod schema;
 pub mod models;
 pub mod controllers;
