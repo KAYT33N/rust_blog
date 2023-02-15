@@ -1,7 +1,8 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    access_tokens (hashed) {
+    access_tokens (id) {
+        id -> Int4,
         hashed -> Bpchar,
         user_id -> Int4,
         age -> Int4,

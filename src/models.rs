@@ -24,6 +24,7 @@ use crate::schema::access_tokens;
 #[derive(Serialize, Queryable, QueryableByName)]
 #[diesel(table_name = access_tokens)]
 pub struct AccessToken{
+    pub id: i32,
     pub hashed: String,
     pub user_id: i32,
     pub age: i32,
