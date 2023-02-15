@@ -1,10 +1,4 @@
 use rocket::{
-    http::Status,
-    request::{
-        Request,
-        FromRequest,
-        Outcome,
-    },
     get,post,
     Route,routes,
     serde::json::Json,
@@ -96,62 +90,7 @@ fn validate_password(string: &str) -> bool {
     rule1.is_match(string) && rule2.is_match(string) && rule3.is_match(string)
 }
 
-#[derive(Serialize)]
-struct AuthedUser{
-    id: i32,
-}
-#[derive(Debug)]
-enum AuthError {
-    TokenNotFound,
-    InvalidToken,
-    Unexpected,
-}
-#[rocket::async_trait]
-impl <'r> FromRequest<'r> for AuthedUser{
-    type Error = AuthError;
-    async fn from_request(req: &'r Request<'_>) -> Outcome<AuthedUser, AuthError>{
-        let token_option = req.headers().get_one("Authorization");
-        if token_option.is_none() {
-            return Outcome::Failure((Status::Unauthorized, AuthError::TokenNotFound));
-        }
-        let connection = &mut crate::establish_connection();
-        let token = token_option.unwrap();
-        let result = crate::schema::access_tokens::table
-            .filter(access_tokens::hashed.eq(sha256::digest(token.trim())))
-            .load::<AccessToken>(connection);
-        if !result.is_ok(){
-            return Outcome::Failure((Status::Unauthorized, AuthError::Unexpected));
-        }
-        let result_unwrapped = result.unwrap().pop();
-        if result_unwrapped.is_none() {
-            return Outcome::Failure((Status::Unauthorized, AuthError::InvalidToken));
-        }
-        Outcome::Success(AuthedUser{id: result_unwrapped.unwrap().user_id})
-    }
-}
-
-/*impl <'a, 'r> FromRequest<'r> for AuthedUser{
-    type Error = AuthError;
-    fn from_request(request: &'a Request<'r>) -> Outcome<AuthedUser, AuthError>{
-        let token_option = request.headers().get_one("Authorization");
-        if token_option.is_none() {
-            return Outcome::Failure((Status::Unauthorized, AuthError::TokenNotFound));
-        }
-        let connection = &mut crate::establish_connection();
-        let token = token_option.unwrap();
-        let result = access_tokens::table
-            .filter(access_tokens::hashed.eq(sha256::digest(token.trim())))
-            .load::<AccessToken>(connection);
-        if !result.is_ok(){
-            return Outcome::Failure((Status::Unauthorized, AuthError::Unexpected));
-        }
-        let result_unwrapped = result.unwrap().pop();
-        if result_unwrapped.is_none() {
-            return Outcome::Failure((Status::Unauthorized, AuthError::InvalidToken));
-        }
-        Outcome::Success(AuthedUser{id: result_unwrapped.unwrap().user_id})
-    }
-}*/
+use crate::guards::autheduser::AuthedUser;
 
 #[get("/")]
 fn whoami(user: AuthedUser) -> Json<AuthedUser> {
