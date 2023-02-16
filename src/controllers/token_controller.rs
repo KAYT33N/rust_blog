@@ -1,4 +1,5 @@
 use rocket::{
+    http::Status,
     post,delete,
     Route,routes,
     serde::json::Json,
@@ -82,6 +83,28 @@ fn generate_token(len: usize) -> String {
         .collect()
 }
 
+use crate::guards::recivedtoken::RecivedToken;
+#[delete("/")]
+fn logout(token: RecivedToken) -> Status { 
+    let token = token.string.trim();
+    if token.len() != TOKENS_LEN {
+        return Status::Unauthorized;
+    }
+    let conn = &mut crate::establish_connection();
+    let nums_deleted = 
+        diesel::delete(
+            access_tokens::table
+                .filter(access_tokens::hashed.eq(sha256::digest(token)))
+        ).execute(conn);
+    if !nums_deleted.is_ok() {
+        return Status::InternalServerError;
+    }
+    if nums_deleted.unwrap() == 0 {
+        return Status::Unauthorized;
+    }
+    Status::Accepted
+}
+
 pub fn routes() -> Vec<Route> {
-    routes![login]
+    routes![login,logout]
 }
