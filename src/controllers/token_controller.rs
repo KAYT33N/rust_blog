@@ -19,6 +19,8 @@ use crate::{
         access_tokens,
     },
 };
+use dotenvy::dotenv;
+use std::env;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 
@@ -54,12 +56,20 @@ fn login(inputs: Json<LoginForm>) -> Json<Token>{
     let raw_token = generate_token(30);
     let result = diesel::
         insert_into(access_tokens::table)
-        .values(NewToken{hashed: digest(raw_token.clone()), user_id: user.id, age: 7})
+        .values(NewToken{hashed: digest(raw_token.clone()), user_id: user.id, age: tokens_age()})
         .execute(connection);
     if result.is_ok() {
         return Json(Token{token: raw_token});
     }
     Json(Token{token: "unexpected".to_string()})
+}
+
+fn tokens_age() -> i32 {
+    dotenv().ok();
+    env::var("ACCESS_TOKENS_AGE")
+        .unwrap_or("1".to_string())
+        .parse::<i32>()
+        .unwrap_or(1i32)
 }
 
 fn generate_token(len: usize) -> String {
