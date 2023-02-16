@@ -18,6 +18,7 @@ use diesel::{
 #[derive(Serialize)]
 pub struct AuthedUser{
     pub id: i32,
+    pub user_id: i32,
 }
 #[derive(Debug)]
 pub enum AuthError {
@@ -42,10 +43,11 @@ impl <'r> FromRequest<'r> for AuthedUser{
         if !result.is_ok(){
             return Outcome::Failure((Status::Unauthorized, AuthError::Unexpected));
         }
-        let result_unwrapped = result.unwrap().pop();
-        if result_unwrapped.is_none() {
+        let token = result.unwrap().pop();
+        if token.is_none() {
             return Outcome::Failure((Status::Unauthorized, AuthError::InvalidToken));
         }
-        Outcome::Success(AuthedUser{id: result_unwrapped.unwrap().user_id})
+        let token = token.unwrap();
+        Outcome::Success(AuthedUser{id: token.id, user_id: token.user_id})
     }
 }
