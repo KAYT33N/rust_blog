@@ -24,6 +24,8 @@ use std::env;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 
+const TOKENS_LEN:usize = 30;
+
 #[derive(Serialize)]
 struct Token{token: String}
 #[derive(Deserialize)]
@@ -53,7 +55,7 @@ fn login(inputs: Json<LoginForm>) -> Json<Token>{
         return Json(Token{token: "user not found".to_string()});
     }
     let user: User = result_unwrapped.unwrap();
-    let raw_token = generate_token(30);
+    let raw_token = generate_token(TOKENS_LEN);
     let result = diesel::
         insert_into(access_tokens::table)
         .values(NewToken{hashed: digest(raw_token.clone()), user_id: user.id, age: tokens_age()})
