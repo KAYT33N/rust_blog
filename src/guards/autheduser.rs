@@ -9,7 +9,11 @@ use rocket::{
 use serde::Serialize;
 use crate::schema::access_tokens;
 use crate::models::AccessToken;
-use diesel::prelude::*;
+use diesel::{
+    prelude::*,
+    sql_types::Bool,
+    dsl::sql,
+};
 
 #[derive(Serialize)]
 pub struct AuthedUser{
@@ -33,6 +37,7 @@ impl <'r> FromRequest<'r> for AuthedUser{
         let token = token_option.unwrap();
         let result = crate::schema::access_tokens::table
             .filter(access_tokens::hashed.eq(sha256::digest(token.trim())))
+            .filter(sql::<Bool>("NOW() < created_at + '1 hour'::interval * age"))
             .load::<AccessToken>(connection);
         if !result.is_ok(){
             return Outcome::Failure((Status::Unauthorized, AuthError::Unexpected));
