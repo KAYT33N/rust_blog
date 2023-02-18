@@ -15,6 +15,7 @@ use crate::schema::posts;
 #[diesel(table_name = posts)]
 pub struct Post{
     pub id: i32,
+    pub parent_id: i32,
     pub user_id: i32,
     pub body: String,
     pub created_at: chrono::NaiveDateTime,

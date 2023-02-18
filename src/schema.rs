@@ -13,6 +13,7 @@ diesel::table! {
 diesel::table! {
     posts (id) {
         id -> Int4,
+        parent_id -> Int4,
         user_id -> Int4,
         body -> Text,
         created_at -> Timestamp,
