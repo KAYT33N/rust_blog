@@ -56,4 +56,5 @@ fn rocket() -> _ {
         .mount("/",routes![healthcheck])
         .mount("/users/",controllers::user_controller::routes())
         .mount("/tokens/",controllers::token_controller::routes())
+        .mount("/posts/",controllers::post_controller::routes())
 }
