@@ -30,13 +30,16 @@ enum PostsShowResponses{
     },
     posts(Vec<Post>),
 }
-#[get("/?<page>")]
-fn posts_show(page: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
+#[get("/?<page>&<len>")]
+fn posts_show(page: Option<i64>, len: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
     let mut page:i64 = page.unwrap_or(1);
     if page < 1 {
         page = 1;
     }
-    let items_in_page = 10i64;
+    let mut items_in_page = len.unwrap_or(10i64);
+    if items_in_page > 10 || items_in_page < 1{
+        items_in_page = 10;
+    }
     let conn = &mut crate::establish_connection();
     let results = posts::table
         .offset(items_in_page*(page-1))
@@ -52,7 +55,7 @@ fn posts_show(page: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
     let results = results.unwrap();
     let status = match results.len() {
         0 => (204, "No Content"),
-        10 => (200, "Ok"),
+        items_in_page => (200, "Ok"),
         _ => (206, "Last Page")
     };
     Json(GenericResponse{
