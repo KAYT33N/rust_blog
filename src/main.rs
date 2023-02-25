@@ -1,4 +1,7 @@
 #![allow(unused_imports)]
+#![allow(unused_variables)]
+#![allow(dead_code)]
+#![allow(unreachable_patterns)]
 #![allow(non_camel_case_types)]
 #[macro_use] extern crate rocket;
 
