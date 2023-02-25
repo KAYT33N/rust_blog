@@ -31,7 +31,7 @@ enum PostsShowResponses{
     posts(Vec<Post>),
 }
 #[get("/?<page>&<len>")]
-fn posts_show(page: Option<i64>, len: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
+fn posts_show_by_date(page: Option<i64>, len: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
     let mut page:i64 = page.unwrap_or(1);
     if page < 1 {
         page = 1;
@@ -146,5 +146,8 @@ fn posts_store(inputs: Json<NewPost>, user: AuthedUser) -> Json<GenericResponse<
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![posts_show, posts_store]
+    routes![
+        posts_show_by_date, 
+        posts_store, 
+        ]
 }
