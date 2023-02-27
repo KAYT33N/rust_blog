@@ -27,6 +27,7 @@ use diesel::{
         Text,
         Timestamp,
         BigInt,
+        Varchar
     },
 };
 
@@ -82,6 +83,8 @@ struct RespondedPost{
     parent_id: i32,
     #[diesel(sql_type = Integer)]
     user_id: i32,
+    #[diesel(sql_type = Varchar)]
+    username: String,
     #[diesel(sql_type = Text)]
     body: String,
     #[diesel(sql_type = Timestamp)]
@@ -100,7 +103,7 @@ enum PostFetchResponses{
 #[get("/<post_id>")]
 fn posts_show_by_thread(post_id: i32) -> Json<GenericResponse<PostFetchResponses>> {
     let conn = &mut crate::establish_connection();
-    let query = String::from(format!("select id, parent_id, user_id,  body, created_at, (with recursive comms as ( select id, parent_id from posts where id = a.id union all select c.id, c.parent_id from comms join posts c on c.parent_id = comms.id ) select count(id)-1 from comms  ) as replies from posts a where a.parent_id = {0} OR a.id = {0}", post_id));
+    let query = String::from(format!("select a.id, a.parent_id, b.id user_id , b.username , a.body, a.created_at, (with recursive comms as ( select id, parent_id from posts where id = a.id union all select c.id, c.parent_id from comms join posts c on c.parent_id = comms.id ) select count(id)-1 from comms  ) as replies from (posts a join users b on a.user_id = b.id) where a.parent_id = {0} OR a.id = {0}", post_id));
     let results = diesel::
         sql_query(&query)
         .get_results::<RespondedPost>(conn);
