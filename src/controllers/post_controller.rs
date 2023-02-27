@@ -31,50 +31,6 @@ use diesel::{
     },
 };
 
-
-#[derive(Serialize)]
-enum PostsShowResponses{
-    errors{
-        unexpected: bool,
-    },
-    posts(Vec<Post>),
-}
-#[get("/?<page>&<len>")]
-fn posts_show_by_date(page: Option<i64>, len: Option<i64>) -> Json<GenericResponse<PostsShowResponses>> {
-    let mut page:i64 = page.unwrap_or(1);
-    if page < 1 {
-        page = 1;
-    }
-    let mut items_in_page = len.unwrap_or(10i64);
-    if items_in_page > 10 || items_in_page < 1{
-        items_in_page = 10;
-    }
-    let conn = &mut crate::establish_connection();
-    let results = posts::table
-        .offset(items_in_page*(page-1))
-        .limit(items_in_page)
-        .get_results(conn);
-    if !results.is_ok(){
-        return Json(GenericResponse{
-            code: 500,
-            status: String::from("Internal Server Error"),
-            response: PostsShowResponses::errors{unexpected:true}
-        });
-    }
-    let results = results.unwrap();
-    let status = match results.len() {
-        0 => (204, "No Content"),
-        items_in_page => (200, "Ok"),
-        _ => (206, "Last Page")
-    };
-    Json(GenericResponse{
-        code: status.0,
-        status: String::from(status.1),
-        response: PostsShowResponses::posts(results)
-    })
-}
-
-
 #[derive(Serialize, QueryableByName)]
 struct RespondedPost{
     #[diesel(sql_type = Integer)]
@@ -218,7 +174,6 @@ fn posts_store(inputs: Json<NewPost>, user: AuthedUser) -> Json<GenericResponse<
 
 pub fn routes() -> Vec<Route> {
     routes![
-        posts_show_by_date, 
         posts_store, 
         posts_show_by_thread
         ]
