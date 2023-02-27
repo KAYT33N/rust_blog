@@ -93,8 +93,12 @@ fn validate_password(string: &str) -> bool {
 use crate::guards::autheduser::AuthedUser;
 
 #[get("/")]
-fn whoami(user: AuthedUser) -> Json<AuthedUser> {
-    Json(user)
+fn whoami(user: AuthedUser) -> Json<GenericResponse<AuthedUser>> {
+    Json(GenericResponse{
+        code: 200,
+        status: String::from("Ok"),
+        response: user
+    })
 }
 
 pub fn routes() -> Vec<Route> {
