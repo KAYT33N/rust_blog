@@ -28,7 +28,13 @@ use rand::{distributions::Alphanumeric, Rng};
 const TOKENS_LEN:usize = 30;
 
 #[derive(Serialize)]
-struct Token{token: String}
+enum LoginResponses{
+    token(String),
+    errors{
+        unauthorized: bool,
+        unexpected: bool,
+    }
+}
 #[derive(Deserialize)]
 struct LoginForm{
     username: String,
@@ -42,18 +48,32 @@ struct NewToken{
     age: i32,
 }
 #[post("/", data = "<inputs>")]
-fn login(inputs: Json<LoginForm>) -> Json<Token>{
+fn login(inputs: Json<LoginForm>) -> Json<GenericResponse<LoginResponses>>{
     let connection = &mut crate::establish_connection();
     let result = users::table
         .filter(users::username.eq(inputs.username.trim()))
         .filter(users::password.eq(digest(inputs.password.trim())))
         .load::<User>(connection);
     if !result.is_ok() {
-        return Json(Token{token: "user not found".to_string()});
+        return Json(GenericResponse{
+            code: 401,
+            status: String::from("Unauthorized"),
+            response: LoginResponses::errors{
+                unauthorized: true,
+                unexpected: false
+            }
+        });
     }
     let result_unwrapped = result.unwrap().pop();
     if result_unwrapped.is_none() {
-        return Json(Token{token: "user not found".to_string()});
+        return Json(GenericResponse{
+            code: 401,
+            status: String::from("Unauthorized"),
+            response: LoginResponses::errors{
+                unauthorized: true,
+                unexpected: false
+            }
+        });
     }
     let user: User = result_unwrapped.unwrap();
     let raw_token = generate_token(TOKENS_LEN);
@@ -62,9 +82,20 @@ fn login(inputs: Json<LoginForm>) -> Json<Token>{
         .values(NewToken{hashed: digest(raw_token.clone()), user_id: user.id, age: tokens_age()})
         .execute(connection);
     if result.is_ok() {
-        return Json(Token{token: raw_token});
+        return Json(GenericResponse{
+            code: 401,
+            status: String::from("Unauthorized"),
+            response: LoginResponses::token(raw_token)
+        });
     }
-    Json(Token{token: "unexpected".to_string()})
+    Json(GenericResponse{
+        code: 500,
+        status: String::from("Internal Server Error"),
+        response: LoginResponses::errors{
+            unauthorized: false,
+            unexpected: true
+        }
+    })
 }
 
 fn tokens_age() -> i32 {
