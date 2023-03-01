@@ -96,10 +96,10 @@ response (on error) :
 ## *logout
 
     (DELETE)	/tokens
-response (on success) :
-	202 with no body
-response (on error) :
-	401 with no body
+- response (on success) :
+	- 202 with no body
+- response (on error) :
+	- 401 with no body
 ##		*posts_store
 route :
 
@@ -117,11 +117,11 @@ response (on success) :
     ...
 	    "response": {
 			"post": {
-				"id": 8,
-				"parent_id": 0,
-				"user_id": 3,
-				"body": "Ur mama",
-				"created_at": "2023-03-01T13:25:26.339175"
+				"id": {{Int}},
+				"parent_id": {{Int}},
+				"user_id": {{Int}},
+				"body": {{String}},
+				"created_at": {{Timestamp}}
 			}
 		}
 	...
